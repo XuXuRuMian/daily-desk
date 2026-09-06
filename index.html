@@ -21,6 +21,9 @@
           <button class="nav-item active" data-view="today"><span>◷</span> 今日记录</button>
           <button class="nav-item" data-view="history"><span>☷</span> 工作记录</button>
           <button class="nav-item" data-view="weekly"><span>▥</span> 周报汇总</button>
+          <button class="nav-item" data-view="analytics"><span>📊</span> 数据统计</button>
+          <button class="nav-item" data-view="calendar"><span>📅</span> 日历视图</button>
+          <button class="nav-item" data-view="notes"><span>📝</span> 快速笔记</button>
         </nav>
         <div class="sidebar-bottom">
           <div class="sync-card"><span class="sync-dot"></span><div><strong id="sync-status">本地保存</strong><small>数据保存在当前设备</small></div></div>
@@ -68,6 +71,189 @@
           <div class="export-options"><label><input type="checkbox" id="export-include-details" checked /> 工作详情</label><label><input type="checkbox" id="export-include-hours" checked /> 投入时长</label><label><input type="checkbox" id="export-include-followup" checked /> 下一步与阻碍</label><div class="range-controls"><label>开始日期<input type="date" id="range-start" /></label><label>结束日期<input type="date" id="range-end" /></label></div></div>
           <div class="weekly-grid"><section class="panel weekly-overview"><div class="panel-heading"><div><h2>本周概览</h2><p id="weekly-summary-sub">已记录 0 天 · 共投入 0 小时</p></div><span class="completion-ring" id="completion-ring">0%</span></div><div class="overview-metrics"><div><strong id="weekly-hours">0h</strong><span>投入时长</span></div><div><strong id="weekly-completed">0</strong><span>完成事项</span></div><div><strong id="weekly-active">0</strong><span>进行中</span></div></div><div class="weekly-highlights"><h3>工作亮点</h3><ul id="highlights-list"><li class="muted-item">完成记录后，这里会自动生成亮点。</li></ul></div><div class="weekly-blockers"><h3>需要跟进</h3><ul id="blockers-list"><li class="muted-item">暂无待跟进事项。</li></ul></div></section><section class="panel weekly-timeline"><div class="panel-heading compact"><h2>每日进展</h2><span class="mini-caption">按时间顺序</span></div><div id="weekly-timeline-list" class="timeline-list"></div></section></div>
         </section>
+
+        <!-- 数据统计视图 -->
+        <section class="view" id="view-analytics">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">ANALYTICS · 数据统计</p>
+              <h1>数据洞察，工作轨迹</h1>
+              <p class="page-desc">可视化分析你的工作模式和效率趋势。</p>
+            </div>
+            <div class="heading-actions">
+              <select id="analytics-period" class="select-input">
+                <option value="week">本周</option>
+                <option value="month" selected>本月</option>
+                <option value="quarter">本季度</option>
+                <option value="year">本年</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="analytics-grid">
+            <section class="panel stats-overview">
+              <div class="panel-heading">
+                <h2>总览</h2>
+                <span class="mini-caption" id="analytics-period-label">2026年9月</span>
+              </div>
+              <div class="big-stats">
+                <div class="big-stat">
+                  <span class="big-stat-icon">⏱</span>
+                  <div>
+                    <strong id="total-hours">0</strong>
+                    <span>总工时</span>
+                  </div>
+                </div>
+                <div class="big-stat">
+                  <span class="big-stat-icon">✓</span>
+                  <div>
+                    <strong id="total-entries">0</strong>
+                    <span>记录天数</span>
+                  </div>
+                </div>
+                <div class="big-stat">
+                  <span class="big-stat-icon">📈</span>
+                  <div>
+                    <strong id="avg-hours">0</strong>
+                    <span>日均工时</span>
+                  </div>
+                </div>
+                <div class="big-stat">
+                  <span class="big-stat-icon">🎯</span>
+                  <div>
+                    <strong id="completion-rate">0%</strong>
+                    <span>完成率</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel chart-panel">
+              <div class="panel-heading compact">
+                <h2>工时趋势</h2>
+                <div class="chart-legend">
+                  <span><span class="legend-dot" style="background:var(--primary)"></span>工作时长</span>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas id="hours-chart"></canvas>
+              </div>
+            </section>
+
+            <section class="panel project-stats">
+              <div class="panel-heading">
+                <h2>项目分布</h2>
+                <span class="mini-caption">按投入时长</span>
+              </div>
+              <div id="project-list" class="project-list">
+                <div class="empty-chart">
+                  <span>📊</span>
+                  <p>暂无项目数据</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel tags-cloud">
+              <div class="panel-heading">
+                <h2>标签云</h2>
+                <span class="mini-caption">常用标签</span>
+              </div>
+              <div id="tags-cloud" class="tags-cloud-container">
+                <div class="empty-chart">
+                  <span>🏷️</span>
+                  <p>暂无标签数据</p>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <!-- 日历视图 -->
+        <section class="view" id="view-calendar">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">CALENDAR · 日历视图</p>
+              <h1>一目了然，工作全景</h1>
+              <p class="page-desc">月历视图查看你的工作记录分布。</p>
+            </div>
+            <div class="heading-actions">
+              <button class="secondary-btn" id="cal-prev-month">‹ 上月</button>
+              <button class="secondary-btn" id="cal-today">今天</button>
+              <button class="secondary-btn" id="cal-next-month">下月 ›</button>
+            </div>
+          </div>
+
+          <section class="panel calendar-panel">
+            <div class="calendar-header">
+              <h2 id="calendar-month">2026年9月</h2>
+            </div>
+            <div class="calendar-grid">
+              <div class="calendar-weekday">日</div>
+              <div class="calendar-weekday">一</div>
+              <div class="calendar-weekday">二</div>
+              <div class="calendar-weekday">三</div>
+              <div class="calendar-weekday">四</div>
+              <div class="calendar-weekday">五</div>
+              <div class="calendar-weekday">六</div>
+              <div id="calendar-days" class="calendar-days"></div>
+            </div>
+          </section>
+
+          <section class="panel calendar-detail" id="calendar-detail-panel" style="display:none">
+            <div class="panel-heading">
+              <h2 id="calendar-detail-date">选择日期查看详情</h2>
+              <button class="text-btn" id="close-calendar-detail">关闭</button>
+            </div>
+            <div id="calendar-detail-content"></div>
+          </section>
+        </section>
+
+        <!-- 快速笔记 -->
+        <section class="view" id="view-notes">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">QUICK NOTES · 快速笔记</p>
+              <h1>灵感闪现，随手记下</h1>
+              <p class="page-desc">临时记录想法、待办事项和灵感。</p>
+            </div>
+            <button class="primary-btn" id="add-note">+ 新建笔记</button>
+          </div>
+
+          <div class="notes-grid">
+            <div class="notes-input-panel panel" id="note-composer">
+              <input type="text" class="text-input" id="note-title" placeholder="笔记标题..." maxlength="100" />
+              <textarea class="text-input textarea" id="note-content" rows="6" placeholder="在这里记录你的想法..."></textarea>
+              <div class="note-actions">
+                <div class="note-tags-input">
+                  <input type="text" class="text-input" id="note-tags" placeholder="标签（逗号分隔）" />
+                </div>
+                <button class="primary-btn" id="save-note">保存笔记</button>
+              </div>
+            </div>
+
+            <div class="notes-list-container">
+              <div class="notes-filter">
+                <div class="search-wrap">
+                  <span>⌕</span>
+                  <input id="notes-search" placeholder="搜索笔记..." />
+                </div>
+                <select id="notes-sort" class="select-input">
+                  <option value="newest">最新优先</option>
+                  <option value="oldest">最早优先</option>
+                  <option value="updated">最近更新</option>
+                </select>
+              </div>
+
+              <div id="notes-list" class="notes-masonry">
+                <div class="empty-state">
+                  <div class="empty-icon">📝</div>
+                  <h3>还没有笔记</h3>
+                  <p>点击上方按钮创建你的第一条笔记。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
     <div class="toast" id="toast" role="status"></div>
@@ -77,5 +263,6 @@
     <script type="module" src="config.js"></script>
     <script type="module" src="export-utils.js"></script>
     <script type="module" src="app.js"></script>
+    <script type="module" src="features.js"></script>
   </body>
 </html>
