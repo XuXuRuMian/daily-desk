@@ -257,15 +257,22 @@
   }
 
   // ========== 日历视图功能 ==========
+  let calendarInitialized = false;
+
   function initCalendar() {
+    if (calendarInitialized) return;
+    calendarInitialized = true;
+
     let currentMonth = new Date();
 
     function renderCalendar() {
       const year = currentMonth.getFullYear();
       const month = currentMonth.getMonth();
 
-      document.getElementById('calendar-month').textContent =
-        `${year}年${month + 1}月`;
+      const monthEl = document.getElementById('calendar-month');
+      if (monthEl) {
+        monthEl.textContent = `${year}年${month + 1}月`;
+      }
 
       const firstDay = new Date(year, month, 1);
       const lastDay = new Date(year, month + 1, 0);
@@ -329,9 +336,12 @@
       const dateObj = new Date(date);
       const label = `${dateObj.getFullYear()}年${dateObj.getMonth() + 1}月${dateObj.getDate()}日`;
 
-      document.getElementById('calendar-detail-date').textContent = label;
+      const dateEl = document.getElementById('calendar-detail-date');
+      if (dateEl) dateEl.textContent = label;
 
       const content = document.getElementById('calendar-detail-content');
+      if (!content) return;
+
       if (!entry) {
         content.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px">这天没有记录</p>';
       } else {
@@ -354,47 +364,89 @@
       panel.style.display = 'block';
     }
 
-    document.getElementById('cal-prev-month')?.addEventListener('click', () => {
-      currentMonth.setMonth(currentMonth.getMonth() - 1);
-      renderCalendar();
-    });
+    const prevBtn = document.getElementById('cal-prev-month');
+    const nextBtn = document.getElementById('cal-next-month');
+    const todayBtn = document.getElementById('cal-today');
+    const closeBtn = document.getElementById('close-calendar-detail');
 
-    document.getElementById('cal-next-month')?.addEventListener('click', () => {
-      currentMonth.setMonth(currentMonth.getMonth() + 1);
-      renderCalendar();
-    });
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        currentMonth.setMonth(currentMonth.getMonth() - 1);
+        renderCalendar();
+      });
+    }
 
-    document.getElementById('cal-today')?.addEventListener('click', () => {
-      currentMonth = new Date();
-      renderCalendar();
-    });
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        currentMonth.setMonth(currentMonth.getMonth() + 1);
+        renderCalendar();
+      });
+    }
 
-    document.getElementById('close-calendar-detail')?.addEventListener('click', () => {
-      document.getElementById('calendar-detail-panel').style.display = 'none';
-    });
+    if (todayBtn) {
+      todayBtn.addEventListener('click', () => {
+        currentMonth = new Date();
+        renderCalendar();
+      });
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        const panel = document.getElementById('calendar-detail-panel');
+        if (panel) panel.style.display = 'none';
+      });
+    }
 
     renderCalendar();
   }
 
   // ========== 快速笔记功能 ==========
+  let notesInitialized = false;
+
   function initNotes() {
+    if (notesInitialized) return;
+    notesInitialized = true;
+
     renderNotes();
 
-    document.getElementById('add-note')?.addEventListener('click', () => {
-      document.getElementById('note-composer').scrollIntoView({ behavior: 'smooth' });
-      document.getElementById('note-title').focus();
-    });
+    const addBtn = document.getElementById('add-note');
+    if (addBtn) {
+      addBtn.addEventListener('click', () => {
+        const composer = document.getElementById('note-composer');
+        if (composer) {
+          composer.scrollIntoView({ behavior: 'smooth' });
+        }
+        const titleInput = document.getElementById('note-title');
+        if (titleInput) titleInput.focus();
+      });
+    }
 
-    document.getElementById('save-note')?.addEventListener('click', saveNote);
+    const saveBtn = document.getElementById('save-note');
+    if (saveBtn) {
+      saveBtn.addEventListener('click', saveNote);
+    }
 
-    document.getElementById('notes-search')?.addEventListener('input', filterNotes);
-    document.getElementById('notes-sort')?.addEventListener('change', renderNotes);
+    const searchInput = document.getElementById('notes-search');
+    if (searchInput) {
+      searchInput.addEventListener('input', filterNotes);
+    }
+
+    const sortSelect = document.getElementById('notes-sort');
+    if (sortSelect) {
+      sortSelect.addEventListener('change', renderNotes);
+    }
   }
 
   function saveNote() {
-    const title = document.getElementById('note-title').value.trim();
-    const content = document.getElementById('note-content').value.trim();
-    const tagsInput = document.getElementById('note-tags').value.trim();
+    const titleEl = document.getElementById('note-title');
+    const contentEl = document.getElementById('note-content');
+    const tagsEl = document.getElementById('note-tags');
+
+    if (!titleEl || !contentEl || !tagsEl) return;
+
+    const title = titleEl.value.trim();
+    const content = contentEl.value.trim();
+    const tagsInput = tagsEl.value.trim();
 
     if (!title && !content) {
       notify('请输入笔记内容');
@@ -415,9 +467,9 @@
     renderNotes();
 
     // 清空输入
-    document.getElementById('note-title').value = '';
-    document.getElementById('note-content').value = '';
-    document.getElementById('note-tags').value = '';
+    titleEl.value = '';
+    contentEl.value = '';
+    tagsEl.value = '';
 
     notify('笔记已保存');
   }
@@ -431,7 +483,10 @@
   }
 
   function filterNotes() {
-    const query = document.getElementById('notes-search').value.toLowerCase();
+    const searchInput = document.getElementById('notes-search');
+    if (!searchInput) return;
+
+    const query = searchInput.value.toLowerCase();
     const notes = document.querySelectorAll('.note-card');
 
     notes.forEach(note => {
@@ -444,7 +499,8 @@
     const container = document.getElementById('notes-list');
     if (!container) return;
 
-    const sortBy = document.getElementById('notes-sort')?.value || 'newest';
+    const sortSelect = document.getElementById('notes-sort');
+    const sortBy = sortSelect ? sortSelect.value : 'newest';
     let sorted = [...notesData];
 
     switch (sortBy) {
@@ -454,6 +510,8 @@
       case 'updated':
         sorted.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
         break;
+      default: // newest
+        sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
     if (sorted.length === 0) {

@@ -1713,14 +1713,16 @@ textarea:focus-visible{
 }
 
 .big-stat-icon{
-  font-size:36px;
-  width:56px;
-  height:56px;
-  display:grid;
-  place-items:center;
+  font-size:48px;
+  width:72px;
+  height:72px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   background:var(--panel);
   border-radius:var(--radius);
   box-shadow:var(--shadow-sm);
+  flex-shrink:0;
 }
 
 .big-stat strong{
