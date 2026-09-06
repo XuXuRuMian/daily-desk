@@ -1,0 +1,4 @@
+# Cloudflare Pages 配置
+*.pages.dev
+.wrangler/
+wrangler.toml.backup
