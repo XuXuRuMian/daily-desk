@@ -372,7 +372,13 @@
     <div class="modal-backdrop hidden" id="settings-modal"><div class="modal"><button class="modal-close" id="close-settings">×</button><p class="eyebrow">DATA SETTINGS</p><h2>账户与提醒</h2><p class="modal-description">登录后可以在不同设备访问同一份工作记录。提醒功能会在每天指定时间提示你填写。</p><div class="config-status" id="config-status"></div><div class="settings-section"><label class="setting-line"><span>每日浏览器提醒</span><input type="checkbox" id="browser-reminder" /></label><div class="reminder-row"><input type="time" id="reminder-time" class="date-input" value="18:00" /><select id="reminder-weekends" class="select-input"><option value="include">包含周末</option><option value="skip">跳过周末</option></select></div><button class="secondary-btn" id="enable-notifications">允许浏览器通知</button></div><a href="README.md" class="help-link">查看部署和 Supabase 配置说明 →</a><div class="modal-actions"><button class="secondary-btn" id="migrate-local">迁移本机记录到云端</button><button class="secondary-btn" id="clear-data">清空本机数据</button><button class="secondary-btn hidden" id="sign-out">退出登录</button></div></div></div>
     <div class="modal-backdrop hidden" id="account-modal"><div class="modal"><button class="modal-close" id="close-account">×</button><p class="eyebrow">ACCOUNT</p><h2>登录每日工作台</h2><p class="modal-description">使用 Google 登录后，记录会自动同步到你的其他设备。</p><button class="primary-btn wide-btn" id="google-login">使用 Google 登录</button><p class="config-status" id="auth-status">当前为本地模式。配置 Supabase 后启用登录。</p></div></div>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-    <script type="module" src="config.js"></script>
+    <script>
+      // 内联配置，避免 config.js 构建问题
+      window.DAILY_DESK_CONFIG = {
+        supabaseUrl: '',
+        supabaseAnonKey: ''
+      };
+    </script>
     <script type="module" src="export-utils.js"></script>
     <script type="module" src="app.js"></script>
     <script type="module" src="features.js"></script>
