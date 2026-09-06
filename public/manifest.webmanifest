@@ -1,0 +1,10 @@
+{
+  "name": "每日工作台",
+  "short_name": "每日工作台",
+  "description": "记录每日工作，自动汇总周报并导出。",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f8fc",
+  "theme_color": "#3f55dc",
+  "icons": []
+}

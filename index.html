@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7f8fc" />
+    <meta name="description" content="每日工作台：记录每日工作，自动汇总周报并导出。" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <title>每日工作台 · Daily Desk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand"><span class="brand-mark">✦</span><span>每日工作台</span></div>
+        <p class="brand-subtitle">Daily Desk</p>
+        <nav class="nav-list" aria-label="主导航">
+          <button class="nav-item active" data-view="today"><span>◷</span> 今日记录</button>
+          <button class="nav-item" data-view="history"><span>☷</span> 工作记录</button>
+          <button class="nav-item" data-view="weekly"><span>▥</span> 周报汇总</button>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="sync-card"><span class="sync-dot"></span><div><strong id="sync-status">本地保存</strong><small>数据保存在当前设备</small></div></div>
+          <button class="ghost-btn" id="open-settings"><span>⚙</span> 数据设置</button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div class="mobile-brand"><span class="brand-mark">✦</span> 每日工作台</div>
+          <div class="topbar-actions"><button class="icon-btn" id="theme-toggle" title="切换主题">◐</button><button class="avatar" id="account-button" title="登录">我</button></div>
+        </header>
+
+        <section class="view active" id="view-today">
+          <div class="page-heading"><div><p class="eyebrow" id="today-label">TODAY · 2026年9月6日 星期日</p><h1>今天，完成了什么？</h1><p class="page-desc">把工作记下来，明天会更清晰。</p></div><button class="primary-btn" id="save-entry">保存今日记录 <span>↗</span></button></div>
+          <div class="dashboard-grid">
+            <section class="panel entry-panel">
+              <div class="panel-heading"><div><h2>每日记录</h2><p>选择日期，记录这一天的关键进展</p></div><input type="date" id="entry-date" class="date-input" /></div>
+              <div class="entry-tools"><button type="button" class="mini-btn" id="copy-yesterday">复制昨天</button><select id="entry-template" class="mini-select"><option value="">快捷模板</option><option value="meeting">会议记录</option><option value="development">开发任务</option><option value="communication">客户沟通</option><option value="learning">学习总结</option></select></div>
+              <form id="entry-form">
+                <label class="field-label">今日主题 <span>一句话概括今天</span></label>
+                <input id="entry-title" class="text-input" type="text" maxlength="80" placeholder="例如：完成首页改版并和设计对齐" />
+                <label class="field-label">工作详情 <span>记录产出、会议、沟通或学习</span></label>
+                <textarea id="entry-details" class="text-input textarea" rows="7" placeholder="今天主要做了什么？有什么具体结果？"></textarea>
+                <div class="field-row">
+                  <div class="field-group"><label class="field-label">完成状态</label><div class="status-options"><label class="status-pill"><input type="radio" name="status" value="done" /><span class="status-dot done"></span>已完成</label><label class="status-pill"><input type="radio" name="status" value="progress" checked /><span class="status-dot progress"></span>进行中</label><label class="status-pill"><input type="radio" name="status" value="todo" /><span class="status-dot todo"></span>待开始</label></div></div>
+                  <div class="field-group hours-group"><label class="field-label" for="entry-hours">投入时长 <span>小时</span></label><input id="entry-hours" class="text-input small-input" type="number" min="0" max="24" step="0.5" placeholder="0" /></div>
+                </div>
+                <div class="field-row"><div class="field-group"><label class="field-label" for="entry-next">下一步计划</label><input id="entry-next" class="text-input" type="text" maxlength="120" placeholder="明天先做什么？" /></div><div class="field-group"><label class="field-label" for="entry-blocker">遇到的阻碍 <span>选填</span></label><input id="entry-blocker" class="text-input" type="text" maxlength="120" placeholder="需要谁的帮助？" /></div></div>
+                <div class="field-row"><div class="field-group"><label class="field-label" for="entry-project">项目 / 分类 <span>选填</span></label><input id="entry-project" class="text-input" type="text" maxlength="60" placeholder="例如：产品迭代、客户项目" /></div><div class="field-group"><label class="field-label" for="entry-tags">标签 <span>用逗号分隔</span></label><input id="entry-tags" class="text-input" type="text" maxlength="120" placeholder="研发, 会议, 重要" /></div></div>
+              </form>
+            </section>
+            <aside class="right-column"><section class="panel quote-panel"><span class="quote-mark">“</span><p>记录不是为了回顾过去，<br /><strong>而是为了看清下一步。</strong></p><span class="quote-author">— Daily Desk</span></section><section class="panel stats-panel"><div class="panel-heading compact"><h2>本周状态</h2><button class="text-btn" data-view-target="weekly">查看周报 →</button></div><div class="stat-grid"><div class="stat"><span class="stat-icon orange">◷</span><strong id="week-hours">0h</strong><small>投入时长</small></div><div class="stat"><span class="stat-icon blue">✓</span><strong id="week-done">0</strong><small>完成事项</small></div><div class="stat"><span class="stat-icon purple">▣</span><strong id="week-days">0</strong><small>记录天数</small></div></div><div class="week-progress"><div class="progress-label"><span>本周记录进度</span><strong id="week-progress-text">0 / 5 天</strong></div><div class="progress-track"><div id="week-progress-bar" class="progress-bar"></div></div></div></section></aside>
+          </div>
+        </section>
+
+        <section class="view" id="view-history">
+          <div class="page-heading"><div><p class="eyebrow">ARCHIVE · 工作记录</p><h1>每一天，都有迹可循</h1><p class="page-desc">按日期查看、编辑和导出你的工作记录。</p></div><div class="heading-actions"><button class="secondary-btn" id="export-all">导出全部记录 ↓</button><button class="secondary-btn" id="show-deleted">最近删除</button></div></div>
+          <section class="panel history-panel"><div class="history-toolbar"><div class="search-wrap"><span>⌕</span><input id="search-input" placeholder="搜索标题、内容、项目或标签" /></div><select id="month-filter" class="select-input"><option value="all">全部月份</option></select><select id="project-filter" class="select-input"><option value="all">全部项目</option></select></div><div id="history-list" class="history-list"></div><div id="history-empty" class="empty-state hidden"><div class="empty-icon">☼</div><h3>还没有工作记录</h3><p>从今天开始，留下你的第一条记录吧。</p><button class="primary-btn" data-view-target="today">去写一条 <span>↗</span></button></div></section>
+        </section>
+
+        <section class="view" id="view-weekly">
+          <div class="page-heading"><div><p class="eyebrow">WEEKLY REVIEW · 周报汇总</p><h1>这一周，走了多远？</h1><p class="page-desc">自动整理本周记录，生成可以直接分享的工作小结。</p></div><div class="heading-actions"><button class="secondary-btn" id="copy-weekly">复制周报</button><button class="secondary-btn" id="export-weekly-pdf">PDF</button><button class="secondary-btn" id="export-weekly-xlsx">Excel</button><button class="primary-btn" id="export-weekly">Markdown ↓</button></div></div>
+          <section class="panel week-selector-panel"><button class="week-arrow" id="prev-week">‹</button><div><span class="week-label">当前周</span><h2 id="week-range">2026年9月1日 — 9月7日</h2></div><button class="week-arrow" id="next-week">›</button><button class="today-link" id="current-week">回到本周</button></section>
+          <div class="export-options"><label><input type="checkbox" id="export-include-details" checked /> 工作详情</label><label><input type="checkbox" id="export-include-hours" checked /> 投入时长</label><label><input type="checkbox" id="export-include-followup" checked /> 下一步与阻碍</label><div class="range-controls"><label>开始日期<input type="date" id="range-start" /></label><label>结束日期<input type="date" id="range-end" /></label></div></div>
+          <div class="weekly-grid"><section class="panel weekly-overview"><div class="panel-heading"><div><h2>本周概览</h2><p id="weekly-summary-sub">已记录 0 天 · 共投入 0 小时</p></div><span class="completion-ring" id="completion-ring">0%</span></div><div class="overview-metrics"><div><strong id="weekly-hours">0h</strong><span>投入时长</span></div><div><strong id="weekly-completed">0</strong><span>完成事项</span></div><div><strong id="weekly-active">0</strong><span>进行中</span></div></div><div class="weekly-highlights"><h3>工作亮点</h3><ul id="highlights-list"><li class="muted-item">完成记录后，这里会自动生成亮点。</li></ul></div><div class="weekly-blockers"><h3>需要跟进</h3><ul id="blockers-list"><li class="muted-item">暂无待跟进事项。</li></ul></div></section><section class="panel weekly-timeline"><div class="panel-heading compact"><h2>每日进展</h2><span class="mini-caption">按时间顺序</span></div><div id="weekly-timeline-list" class="timeline-list"></div></section></div>
+        </section>
+      </main>
+    </div>
+    <div class="toast" id="toast" role="status"></div>
+    <div class="modal-backdrop hidden" id="settings-modal"><div class="modal"><button class="modal-close" id="close-settings">×</button><p class="eyebrow">DATA SETTINGS</p><h2>账户与提醒</h2><p class="modal-description">登录后可以在不同设备访问同一份工作记录。提醒功能会在每天指定时间提示你填写。</p><div class="config-status" id="config-status"></div><div class="settings-section"><label class="setting-line"><span>每日浏览器提醒</span><input type="checkbox" id="browser-reminder" /></label><div class="reminder-row"><input type="time" id="reminder-time" class="date-input" value="18:00" /><select id="reminder-weekends" class="select-input"><option value="include">包含周末</option><option value="skip">跳过周末</option></select></div><button class="secondary-btn" id="enable-notifications">允许浏览器通知</button></div><a href="README.md" class="help-link">查看部署和 Supabase 配置说明 →</a><div class="modal-actions"><button class="secondary-btn" id="migrate-local">迁移本机记录到云端</button><button class="secondary-btn" id="clear-data">清空本机数据</button><button class="secondary-btn hidden" id="sign-out">退出登录</button></div></div></div>
+    <div class="modal-backdrop hidden" id="account-modal"><div class="modal"><button class="modal-close" id="close-account">×</button><p class="eyebrow">ACCOUNT</p><h2>登录每日工作台</h2><p class="modal-description">使用 Google 登录后，记录会自动同步到你的其他设备。</p><button class="primary-btn wide-btn" id="google-login">使用 Google 登录</button><p class="config-status" id="auth-status">当前为本地模式。配置 Supabase 后启用登录。</p></div></div>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <script type="module" src="config.js"></script>
+    <script type="module" src="export-utils.js"></script>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
