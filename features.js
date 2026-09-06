@@ -33,63 +33,77 @@
     const periodSelect = document.getElementById('analytics-period');
     if (!periodSelect) return;
 
+    // 移除旧的事件监听器，防止重复绑定
+    periodSelect.removeEventListener('change', updateAnalytics);
     periodSelect.addEventListener('change', updateAnalytics);
-    updateAnalytics();
+
+    // 延迟更新，避免阻塞
+    setTimeout(() => {
+      updateAnalytics();
+    }, 100);
   }
 
   function updateAnalytics() {
-    const period = document.getElementById('analytics-period')?.value || 'month';
-    const entries = getEntries().filter(e => !e.deletedAt);
-    const now = new Date();
-    let startDate;
+    try {
+      const period = document.getElementById('analytics-period')?.value || 'month';
+      const entries = getEntries().filter(e => !e.deletedAt);
+      const now = new Date();
+      let startDate;
 
-    switch (period) {
-      case 'week':
-        startDate = new Date(now);
-        startDate.setDate(now.getDate() - now.getDay());
-        break;
-      case 'quarter':
-        startDate = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
-        break;
-      case 'year':
-        startDate = new Date(now.getFullYear(), 0, 1);
-        break;
-      default: // month
-        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      switch (period) {
+        case 'week':
+          startDate = new Date(now);
+          startDate.setDate(now.getDate() - now.getDay());
+          break;
+        case 'quarter':
+          startDate = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+          break;
+        case 'year':
+          startDate = new Date(now.getFullYear(), 0, 1);
+          break;
+        default: // month
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      }
+
+      const filteredEntries = entries.filter(e => new Date(e.date) >= startDate);
+
+      // 计算总览数据
+      const totalHours = filteredEntries.reduce((sum, e) => sum + (e.hours || 0), 0);
+      const totalEntries = filteredEntries.length;
+      const avgHours = totalEntries > 0 ? (totalHours / totalEntries).toFixed(1) : 0;
+      const completedCount = filteredEntries.filter(e => e.status === 'done').length;
+      const completionRate = totalEntries > 0 ? Math.round((completedCount / totalEntries) * 100) : 0;
+
+      const totalHoursEl = document.getElementById('total-hours');
+      const totalEntriesEl = document.getElementById('total-entries');
+      const avgHoursEl = document.getElementById('avg-hours');
+      const completionRateEl = document.getElementById('completion-rate');
+
+      if (totalHoursEl) totalHoursEl.textContent = totalHours.toFixed(1) + 'h';
+      if (totalEntriesEl) totalEntriesEl.textContent = totalEntries;
+      if (avgHoursEl) avgHoursEl.textContent = avgHours + 'h';
+      if (completionRateEl) completionRateEl.textContent = completionRate + '%';
+
+      // 更新期间标签
+      const labels = {
+        week: '本周',
+        month: `${now.getFullYear()}年${now.getMonth() + 1}月`,
+        quarter: `${now.getFullYear()}年Q${Math.floor(now.getMonth() / 3) + 1}`,
+        year: `${now.getFullYear()}年`
+      };
+      const labelEl = document.getElementById('analytics-period-label');
+      if (labelEl) labelEl.textContent = labels[period];
+
+      // 延迟绘制图表，避免阻塞主线程
+      setTimeout(() => {
+        drawHoursChart(filteredEntries, period);
+        updateProjectStats(filteredEntries);
+        updateTagsCloud(filteredEntries);
+      }, 50);
+    } catch (error) {
+      console.error('Analytics update error:', error);
+      notify('数据统计加载失败，请刷新页面');
     }
-
-    const filteredEntries = entries.filter(e => new Date(e.date) >= startDate);
-
-    // 计算总览数据
-    const totalHours = filteredEntries.reduce((sum, e) => sum + (e.hours || 0), 0);
-    const totalEntries = filteredEntries.length;
-    const avgHours = totalEntries > 0 ? (totalHours / totalEntries).toFixed(1) : 0;
-    const completedCount = filteredEntries.filter(e => e.status === 'done').length;
-    const completionRate = totalEntries > 0 ? Math.round((completedCount / totalEntries) * 100) : 0;
-
-    document.getElementById('total-hours').textContent = totalHours.toFixed(1) + 'h';
-    document.getElementById('total-entries').textContent = totalEntries;
-    document.getElementById('avg-hours').textContent = avgHours + 'h';
-    document.getElementById('completion-rate').textContent = completionRate + '%';
-
-    // 更新期间标签
-    const labels = {
-      week: '本周',
-      month: `${now.getFullYear()}年${now.getMonth() + 1}月`,
-      quarter: `${now.getFullYear()}年Q${Math.floor(now.getMonth() / 3) + 1}`,
-      year: `${now.getFullYear()}年`
-    };
-    const labelEl = document.getElementById('analytics-period-label');
-    if (labelEl) labelEl.textContent = labels[period];
-
-    // 绘制图表
-    drawHoursChart(filteredEntries, period);
-
-    // 项目分布
-    updateProjectStats(filteredEntries);
-
-    // 标签云
-    updateTagsCloud(filteredEntries);
   }
 
   function drawHoursChart(entries, period) {
@@ -491,13 +505,17 @@
   window.deleteNote = deleteNote;
 
   // 监听视图切换
+  let isInitialized = false;
   const observer = new MutationObserver(() => {
     const activeView = document.querySelector('.view.active');
     if (!activeView) return;
 
     const viewId = activeView.id;
-    if (viewId === 'view-analytics') {
-      updateAnalytics();
+    if (viewId === 'view-analytics' && !isInitialized) {
+      isInitialized = true;
+      setTimeout(() => {
+        updateAnalytics();
+      }, 100);
     } else if (viewId === 'view-calendar') {
       initCalendar();
     } else if (viewId === 'view-notes') {
@@ -507,14 +525,30 @@
 
   // 初始化
   document.addEventListener('DOMContentLoaded', () => {
-    initAnalytics();
-    initCalendar();
-    initNotes();
+    // 初始化所有功能（但不立即执行数据更新）
+    const periodSelect = document.getElementById('analytics-period');
+    if (periodSelect) {
+      periodSelect.removeEventListener('change', updateAnalytics);
+      periodSelect.addEventListener('change', updateAnalytics);
+    }
 
     // 监听视图变化
     const viewContainer = document.querySelector('.main-content');
     if (viewContainer) {
-      observer.observe(viewContainer, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+      observer.observe(viewContainer, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class']
+      });
+    }
+
+    // 如果默认就是统计视图，则初始化
+    const analyticsView = document.getElementById('view-analytics');
+    if (analyticsView && analyticsView.classList.contains('active')) {
+      setTimeout(() => {
+        updateAnalytics();
+      }, 200);
     }
   });
 })();
