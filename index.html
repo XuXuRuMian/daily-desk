@@ -208,47 +208,159 @@
           </section>
         </section>
 
-        <!-- 快速笔记 -->
+        <!-- 完整笔记系统 -->
         <section class="view" id="view-notes">
           <div class="page-heading">
             <div>
-              <p class="eyebrow">QUICK NOTES · 快速笔记</p>
-              <h1>灵感闪现，随手记下</h1>
-              <p class="page-desc">临时记录想法、待办事项和灵感。</p>
+              <p class="eyebrow">NOTES · 笔记中心</p>
+              <h1>记录想法，沉淀知识</h1>
+              <p class="page-desc">强大的笔记管理系统，支持 Markdown、分类、搜索。</p>
             </div>
             <button class="primary-btn" id="add-note">+ 新建笔记</button>
           </div>
 
-          <div class="notes-grid">
-            <div class="notes-input-panel panel" id="note-composer">
-              <input type="text" class="text-input" id="note-title" placeholder="笔记标题..." maxlength="100" />
-              <textarea class="text-input textarea" id="note-content" rows="6" placeholder="在这里记录你的想法..."></textarea>
-              <div class="note-actions">
-                <div class="note-tags-input">
-                  <input type="text" class="text-input" id="note-tags" placeholder="标签（逗号分隔）" />
+          <div class="notes-workspace">
+            <!-- 左侧边栏 -->
+            <aside class="notes-sidebar">
+              <div class="notes-sidebar-section">
+                <h3 class="notes-sidebar-title">分类</h3>
+                <div id="categories-list" class="notes-categories">
+                  <button class="category-item active" data-category="all">
+                    <span class="category-icon">📋</span>
+                    <span class="category-name">全部笔记</span>
+                    <span class="category-count" id="count-all">0</span>
+                  </button>
+                  <button class="category-item" data-category="starred">
+                    <span class="category-icon">⭐</span>
+                    <span class="category-name">收藏</span>
+                    <span class="category-count" id="count-starred">0</span>
+                  </button>
+                  <button class="category-item" data-category="archived">
+                    <span class="category-icon">📦</span>
+                    <span class="category-name">归档</span>
+                    <span class="category-count" id="count-archived">0</span>
+                  </button>
                 </div>
-                <button class="primary-btn" id="save-note">保存笔记</button>
+                <button class="add-category-btn" id="add-category">+ 新建分类</button>
               </div>
-            </div>
 
-            <div class="notes-list-container">
-              <div class="notes-filter">
+              <div class="notes-sidebar-section">
+                <h3 class="notes-sidebar-title">标签</h3>
+                <div id="sidebar-tags-list" class="sidebar-tags"></div>
+              </div>
+
+              <div class="notes-sidebar-section">
+                <h3 class="notes-sidebar-title">统计</h3>
+                <div class="notes-stats">
+                  <div class="notes-stat-item">
+                    <span>总笔记数</span>
+                    <strong id="stat-total">0</strong>
+                  </div>
+                  <div class="notes-stat-item">
+                    <span>本周新增</span>
+                    <strong id="stat-week">0</strong>
+                  </div>
+                </div>
+              </div>
+            </aside>
+
+            <!-- 中间笔记列表 -->
+            <div class="notes-list-panel">
+              <div class="notes-toolbar">
                 <div class="search-wrap">
                   <span>⌕</span>
-                  <input id="notes-search" placeholder="搜索笔记..." />
+                  <input id="notes-search" placeholder="搜索笔记标题、内容..." />
                 </div>
-                <select id="notes-sort" class="select-input">
-                  <option value="newest">最新优先</option>
-                  <option value="oldest">最早优先</option>
-                  <option value="updated">最近更新</option>
-                </select>
+                <div class="notes-toolbar-actions">
+                  <select id="notes-sort" class="select-input">
+                    <option value="updated">最近更新</option>
+                    <option value="created">创建时间</option>
+                    <option value="title">标题排序</option>
+                  </select>
+                  <button class="icon-btn" id="notes-view-toggle" title="切换视图">
+                    <span>▦</span>
+                  </button>
+                </div>
               </div>
 
-              <div id="notes-list" class="notes-masonry">
+              <div id="notes-list" class="notes-list-view">
                 <div class="empty-state">
                   <div class="empty-icon">📝</div>
                   <h3>还没有笔记</h3>
-                  <p>点击上方按钮创建你的第一条笔记。</p>
+                  <p>点击右上角按钮创建你的第一条笔记。</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 右侧编辑器 -->
+            <div class="notes-editor-panel hidden" id="notes-editor">
+              <div class="notes-editor-header">
+                <button class="icon-btn" id="close-editor" title="关闭">×</button>
+                <div class="notes-editor-actions">
+                  <button class="icon-btn" id="toggle-starred" title="收藏">☆</button>
+                  <button class="icon-btn" id="note-more-menu" title="更多">⋯</button>
+                </div>
+              </div>
+
+              <div class="notes-editor-tabs">
+                <button class="editor-tab active" data-tab="edit">✏️ 编辑</button>
+                <button class="editor-tab" data-tab="preview">👁 预览</button>
+                <button class="editor-tab" data-tab="both">⚏ 分屏</button>
+              </div>
+
+              <div class="notes-editor-content">
+                <div class="notes-editor-edit" id="editor-edit-pane">
+                  <input type="text" class="note-title-input" id="edit-note-title" placeholder="笔记标题..." />
+
+                  <div class="note-metadata">
+                    <select id="edit-note-category" class="select-input">
+                      <option value="">选择分类</option>
+                    </select>
+                    <input type="text" class="text-input" id="edit-note-tags" placeholder="标签（逗号分隔）" />
+                  </div>
+
+                  <div class="editor-toolbar">
+                    <button class="editor-tool-btn" data-action="bold" title="粗体 (Ctrl+B)">B</button>
+                    <button class="editor-tool-btn" data-action="italic" title="斜体 (Ctrl+I)">I</button>
+                    <button class="editor-tool-btn" data-action="heading" title="标题">H</button>
+                    <button class="editor-tool-btn" data-action="list" title="列表">≡</button>
+                    <button class="editor-tool-btn" data-action="code" title="代码">&lt;/&gt;</button>
+                    <button class="editor-tool-btn" data-action="link" title="链接">🔗</button>
+                  </div>
+
+                  <textarea class="note-editor-textarea" id="edit-note-content" placeholder="支持 Markdown 格式...
+
+# 标题
+## 二级标题
+
+**粗体** *斜体*
+
+- 列表项
+- 列表项
+
+[链接](https://example.com)
+
+`代码`
+
+```
+代码块
+```
+"></textarea>
+                </div>
+
+                <div class="notes-editor-preview hidden" id="editor-preview-pane">
+                  <div id="preview-content" class="markdown-preview"></div>
+                </div>
+              </div>
+
+              <div class="notes-editor-footer">
+                <div class="note-info">
+                  <span id="note-word-count">0 字</span>
+                  <span id="note-update-time">未保存</span>
+                </div>
+                <div class="editor-footer-actions">
+                  <button class="secondary-btn" id="discard-note">放弃</button>
+                  <button class="primary-btn" id="save-note-editor">保存笔记</button>
                 </div>
               </div>
             </div>
@@ -264,5 +376,6 @@
     <script type="module" src="export-utils.js"></script>
     <script type="module" src="app.js"></script>
     <script type="module" src="features.js"></script>
+    <script type="module" src="notes-system.js"></script>
   </body>
 </html>
